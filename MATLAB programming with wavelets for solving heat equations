@@ -1,0 +1,39 @@
+clear
+clc
+L = 1;        
+T = 0.1;       
+alpha = 0.01;   
+Nx = 100;       
+Nt = 100;      
+dx = L / (Nx-1); 
+dt = T / Nt;     
+x = linspace(0, L, Nx);  
+t = linspace(0, T, Nt);  
+u_initial = sin(pi * x);
+wname = 'db4';  
+level = 3;     
+u = u_initial; 
+u_wavelet = zeros(Nt, Nx);  
+u_wavelet(1, :) = u_initial; 
+for n = 2:Nt
+    % Apply the discrete wavelet transform (DWT) to the temperature profile
+    [C, L] = wavedec(u, level, wname);
+    C = C .* exp(-alpha * dt); 
+    u = waverec(C, L, wname);
+    u_wavelet(n, :) = u;
+end
+figure;
+plot(x, u_initial, 'r-', 'LineWidth', 2); hold on;
+plot(x, u_wavelet(end, :), 'b-', 'LineWidth', 2);
+xlabel('Position (x)');
+ylabel('Temperature (u)');
+title('Heat Equation Solution Using Wavelets');
+legend('Initial Condition', 'Final Temperature');
+grid on;
+figure;
+surf(x, t, u_wavelet, 'EdgeColor', 'none');
+xlabel('Position (x)');
+ylabel('Time (t)');
+zlabel('Temperature (u)');
+title('Temperature Evolution Over Time Using Wavelets');
+colorbar;
