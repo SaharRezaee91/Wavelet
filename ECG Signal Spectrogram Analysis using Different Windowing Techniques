@@ -1,0 +1,17 @@
+CLC; 
+clear;
+data=load('arrhythmia (1).txt');
+ecg=data(:,2);
+s=spectrogram(ECG,bartlett(50));
+subplot(2,2,1)
+spectrogram(ECG,bartlett(50));
+title('bartlett);
+subplot(2,2,2)
+spectrogram(ecg,gausswin(50));
+title('gausswin');
+subplot(2,2,3)
+spectrogram(ECG,hamming(50));
+title('hamming');
+subplot(2,2,4)
+spectrogram(ecg,hann(50));
+title('hann');
