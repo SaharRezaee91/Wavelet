@@ -1,0 +1,25 @@
+Clear
+CLC
+L = 1;           
+T = 0.1;          
+alpha = 0.01;     
+N = 100;         
+x = linspace(0, L, 100);  
+t = linspace(0, T, 100);  
+f = @(x) sin(pi*x);  
+u = zeros(length(x), length(t));
+for n = 1:N
+    lambda_n = (n*pi/L)^2; 
+    A_n = 2 * integral(@(x) f(x).*sin(n*pi*x/L), 0, L) / L;
+    for i = 1:length(x)
+        for j = 1:length(t)
+            u(i,j) = u(i,j) + A_n * sin(n*pi*x(i)/L) * exp(-alpha*lambda_n*t(j));
+        end
+    end
+end
+[X, T] = meshgrid(x, t);
+surf(X, T, u') 
+xlabel('Position (x)') 
+ylabel('Time (t)')  
+zlabel('Temperature u(x,t)') 
+title('1D Heat Equation Solution Using Fourier Series')
