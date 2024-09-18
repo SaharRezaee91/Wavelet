@@ -1,0 +1,44 @@
+clear
+clc
+Fs = 1000; 
+t = 0:1/Fs:2; 
+signal = sin(2*pi*100*t) + 0.5*sin(2*pi*200*t) + 0.2*sin(2*pi*400*t);
+noise = 0.1 * randn(size(t));
+lung_sound = signal + noise;
+figure;
+plot(t, lung_sound);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Simulated Lung Sound Signal');
+grid on;
+gabor_wavelet = @(t, f, sigma) exp(-t.^2 / (2*sigma^2)) .* cos(2*pi*f*t);
+time_window = -1:1/Fs:1; 
+gabor_transform = conv(lung_sound, gabor_wavelet(time_window, center_frequency, sigma), 'same');
+figure;
+plot(t, gabor_transform);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Gabor Wavelet Transform of Lung Sound Signal');
+grid on;
+window_length = round(Fs * 0.1);
+overlap = round(0.9 * window_length); 
+nfft = 1024; 
+figure;
+spectrogram(lung_sound, window_length, overlap, nfft, Fs, 'yaxis');
+title('Time-Frequency Representation (Spectrogram) of Lung Sound');
+colormap jet;
+colorbar;
+gabor_energy = sum(abs(gabor_transform).^2); 
+gabor_max_freq = max(abs(fft(gabor_transform))); 
+gabor_std = std(gabor_transform); 
+fprintf('Gabor Transform Energy: %.2f\n', gabor_energy);
+fprintf('Maximum Frequency Component: %.2f Hz\n', gabor_max_freq);
+fprintf('Standard Deviation of Gabor Transform: %.2f\n', gabor_std);
+energy_threshold = 0.5;
+frequency_threshold = 150;
+std_threshold = 0.05;
+if gabor_energy > energy_threshold && gabor_max_freq > frequency_threshold && gabor_std > std_threshold
+    fprintf('Diagnosis: High likelihood of advanced lung disease\n');
+else
+    fprintf('Diagnosis: Low likelihood of advanced lung disease\n');
+end
