@@ -1,0 +1,49 @@
+CLC; 
+clear;
+Data2 = xlsread('wavedata.xlsx');
+time= Data2(:,1);
+sstjja=Data2(:,2);
+csljja=Data2(:,3);
+jjaprec=Data2(:,4);
+sstdjf=Data2(:,5);
+cloudjja=Data2(:,6);
+csldjf=Data2(:,7);
+clouddjf=Data2(:,8);
+djfprec=Data2(:,9);
+averagesst=Data2(:,10);
+r = 30;
+N=42; 
+sf=42;
+delta=1.15;
+unit=(1-3*delta)/3;
+h1=[delta 2*(unit+delta) 1-2*delta unit];
+h2=[delta delta 1-2*delta  2*unit];
+set(gcf,'NumberTitle','off','Name','Window 1')
+window1=10;
+window2=15;
+window3=20;
+figure(1)
+subplot(221)
+plot(time,cloudjja);
+axis([1979 2020 min(cloudjja) max(cloudjja)]);
+ylabel('SST');
+xlabel('Year');
+subplot(222)
+specgm1=WindowFT(cloudjja,window1,1,'Bartlett');
+xlabel('b[s]');
+ylabel('Frequency (Hz)');
+title('Bartlett window');
+colorbar
+subplot(223)
+specgm2=WindowFT(cloudjja,window2,1,'Gaussian');
+xlabel('b[s]');
+ylabel('Frequency (Hz)');
+title('Gaussian window');
+colorbar
+subplot(224)
+specgm2=WindowFT(cloudjja,window3,1,'Blackman');
+xlabel('b[s]');
+ylabel('Frequency (Hz)');
+title('Blackman window');
+colormap('jet')
+colorbar
