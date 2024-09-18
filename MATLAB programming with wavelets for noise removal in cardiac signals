@@ -1,0 +1,38 @@
+clear
+clc
+Fs = 500; 
+t = 0:1/Fs:5; 
+clean_ecg = 1.5 * sin(2 * pi * 1.5 * t) + 0.75 * sin(2 * pi * 0.5 * t);
+noise = 0.5 * randn(size(t)); 
+noisy_ecg = clean_ecg + noise; 
+figure;
+plot(t, noisy_ecg, 'r');
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Noisy ECG Signal');
+grid on;
+wname = 'db6';  
+level = 4;     
+[C, L] = wavedec(noisy_ecg, level, wname);
+threshold = sqrt(2 * log(length(noisy_ecg))) * median(abs(C)) / 0.6745;
+C_denoised = wthresh(C, 's', threshold);
+denoised_ecg = waverec(C_denoised, L, wname);
+figure;
+subplot(3, 1, 1);
+plot(t, clean_ecg, 'g');
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Original Clean ECG Signal');
+grid on;
+subplot(3, 1, 2);
+plot(t, noisy_ecg, 'r');
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Noisy ECG Signal');
+grid on;
+subplot(3, 1, 3);
+plot(t, denoised_ecg, 'b');
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Denoised ECG Signal (Using Wavelets)');
+grid on;
