@@ -1,0 +1,34 @@
+[ecgSignal, fs] = loadECGData('your data');
+lowCutoff = 0.5; 
+highCutoff = 45;  
+[b, a] = butter(4, [lowCutoff highCutoff] / (fs / 2), 'bandpass'); 
+ecgFiltered = filtfilt(b, a, ecgSignal);  
+[~, rPeaks] = findpeaks(ecgFiltered, 'MinPeakHeight', 0.5, 'MinPeakDistance', 0.6 * fs); 
+qrsIntervals = diff(rPeaks) / fs; 
+wname = 'db6'; %you can change this part to other wavelets
+[coeffs, levels] = wavedec(ecgFiltered, 6, wname); 
+threshold = 0.04 * max(coeffs); 
+coeffs = wthresh(coeffs, 's', threshold); 
+ecgDenoised = waverec(coeffs, levels, wname);
+trainFeatures = extractECGFeatures(ecgDenoised); 
+trainLabels = [1, 0, 1, 0, 1, 1, 0];  % 1: normal, 0: abnormal (just an example)
+k = 5;  % Number of neighbors
+knnModel = fitcknn(trainFeatures, trainLabels, 'NumNeighbors', k);
+testFeatures = extractECGFeatures(ecgFiltered); 
+predictedLabels = predict(knnModel, testFeatures); 
+figure;
+subplot(3,1,1);
+plot(ecgSignal);
+title('Original ECG Signal');
+xlabel('Time (samples)');
+ylabel('Amplitude');
+subplot(3,1,2);
+plot(ecgFiltered);
+title('Filtered ECG Signal');
+xlabel('Time (samples)');
+ylabel('Amplitude');
+subplot(3,1,3);
+plot(ecgDenoised);
+title('Denoised ECG Signal');
+xlabel('Time (samples)');
+ylabel('Amplitude');
